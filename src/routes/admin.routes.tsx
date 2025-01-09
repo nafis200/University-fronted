@@ -16,7 +16,7 @@ type TRoute = {
     children?: TSidebarItem[];
   };
 
-const adminPaths = [
+export const adminPaths = [
     {
       name: 'Dashboard',
       path: 'dashboard',
