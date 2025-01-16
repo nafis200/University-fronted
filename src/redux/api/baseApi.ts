@@ -32,13 +32,8 @@ const baseQueryWithRefreshToken: BaseQueryFn<
   let result = await baseQuery(args, api, extraOptions);
 
   if (result?.error?.status === 404) {
-    const errorData = result.error.data;
-    
-    if (typeof errorData === 'object' && errorData !== null) {
-      toast.error((errorData as { message: string }).message);
-    }
+    toast.error(result.error.data.message);
   }
-  
   if (result?.error?.status === 401) {
     //* Send Refresh
     console.log('Sending refresh token');
