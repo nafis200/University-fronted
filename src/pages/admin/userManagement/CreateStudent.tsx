@@ -96,9 +96,7 @@ const CreateStudent = () => {
     useGetAllSemestersQuery(undefined);
 
   const { data: dData, isLoading: dIsLoading } =
-    useGetAcademicDepartmentsQuery(undefined, {skip: sIsLoading});
-
-    // 1st data load howar por second data load hobe
+    useGetAcademicDepartmentsQuery(undefined);
 
   const semesterOptions = sData?.data?.map((item) => ({
     value: item._id,
