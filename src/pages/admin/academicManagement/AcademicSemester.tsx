@@ -10,15 +10,25 @@ export type TTableData = Pick<
 >;
 
 const AcademicSemester = () => {
+ 
   const [params, setParams] = useState<TQueryParam[] | undefined>(undefined);
+
+  const [pagination, setPagination] = useState({ current: 1, pageSize: 2 });
+
   const {
     data: semesterData,
     isLoading,
     isFetching,
-  } = useGetAllSemestersQuery(params);
+  } = useGetAllSemestersQuery([
+    ...(params || []),
+    { name: 'page', value: pagination.current.toString() }, 
+    { name: 'limit', value: pagination.pageSize.toString() },
+  ]);
 
-  console.log({ isLoading, isFetching });
+  
+  // console.log(semesterData?.meta?.total);
 
+  
   const tableData = semesterData?.data?.map(
     ({ _id, name, startMonth, endMonth, year }) => ({
       key: _id,
@@ -35,18 +45,9 @@ const AcademicSemester = () => {
       key: 'name',
       dataIndex: 'name',
       filters: [
-        {
-          text: 'Autumn',
-          value: 'Autumn',
-        },
-        {
-          text: 'Fall',
-          value: 'Fall',
-        },
-        {
-          text: 'Summer',
-          value: 'Summer',
-        },
+        { text: 'Autumn', value: 'Autumn' },
+        { text: 'Fall', value: 'Fall' },
+        { text: 'Summer', value: 'Summer' },
       ],
     },
     {
@@ -54,18 +55,9 @@ const AcademicSemester = () => {
       key: 'year',
       dataIndex: 'year',
       filters: [
-        {
-          text: '2024',
-          value: '2024',
-        },
-        {
-          text: '2025',
-          value: '2025',
-        },
-        {
-          text: '2026',
-          value: '2026',
-        },
+        { text: '2024', value: '2024' },
+        { text: '2025', value: '2025' },
+        { text: '2026', value: '2026' },
       ],
     },
     {
@@ -81,22 +73,27 @@ const AcademicSemester = () => {
     {
       title: 'Action',
       key: 'x',
-      render: () => {
-        return (
-          <div>
-            <Button>Update</Button>
-          </div>
-        );
-      },
+      render: () => <Button>Update</Button>,
     },
   ];
 
   const onChange: TableProps<TTableData>['onChange'] = (
-    _pagination,
+    paginationConfig,
     filters,
     _sorter,
     extra
   ) => {
+    const { current, pageSize } = paginationConfig;
+
+    // console.log(paginationConfig),
+    // console.log(filters)
+    // console.log(extra)
+    // console.log(_sorter)
+
+    if (extra.action === 'paginate') {
+      setPagination({ current: current!, pageSize: pageSize! });
+    }
+
     if (extra.action === 'filter') {
       const queryParams: TQueryParam[] = [];
 
@@ -114,9 +111,16 @@ const AcademicSemester = () => {
 
   return (
     <Table
-      loading={isFetching}
-      columns={columns}
+      loading={isFetching} 
+      columns={columns} 
       dataSource={tableData}
+      pagination={{
+        current: pagination.current,
+        pageSize: pagination.pageSize,
+        total: semesterData?.meta?.total,
+        showSizeChanger: true,
+        pageSizeOptions: ['2', '4', '6', '8', '10'],
+      }}
       onChange={onChange}
     />
   );
