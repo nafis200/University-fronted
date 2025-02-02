@@ -21,6 +21,7 @@ export const adminPaths = [
   {
     name: 'Dashboard',
     path: 'dashboard',
+    index:true,
     element: <AdminDashboard />,
   },
   {

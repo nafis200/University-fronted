@@ -1,4 +1,4 @@
-import { Button, Table, TableColumnsType, TableProps } from 'antd';
+import { Button, Table, TableColumnsType, TableProps, Input } from 'antd';
 import { useGetAllSemestersQuery } from '../../../redux/features/admin/academicManagement.api';
 import { TAcademicSemester } from '../../../types/academicManagement.type';
 import { useState } from 'react';
@@ -10,10 +10,9 @@ export type TTableData = Pick<
 >;
 
 const AcademicSemester = () => {
- 
   const [params, setParams] = useState<TQueryParam[] | undefined>(undefined);
-
   const [pagination, setPagination] = useState({ current: 1, pageSize: 2 });
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   const {
     data: semesterData,
@@ -21,14 +20,11 @@ const AcademicSemester = () => {
     isFetching,
   } = useGetAllSemestersQuery([
     ...(params || []),
-    { name: 'page', value: pagination.current.toString() }, 
+    { name: 'page', value: pagination.current.toString() },
     { name: 'limit', value: pagination.pageSize.toString() },
+    { name: 'searchTerm', value: searchTerm },
   ]);
 
-  
-  // console.log(semesterData?.meta?.total);
-
-  
   const tableData = semesterData?.data?.map(
     ({ _id, name, startMonth, endMonth, year }) => ({
       key: _id,
@@ -85,11 +81,6 @@ const AcademicSemester = () => {
   ) => {
     const { current, pageSize } = paginationConfig;
 
-    // console.log(paginationConfig),
-    // console.log(filters)
-    // console.log(extra)
-    // console.log(_sorter)
-
     if (extra.action === 'paginate') {
       setPagination({ current: current!, pageSize: pageSize! });
     }
@@ -109,20 +100,34 @@ const AcademicSemester = () => {
     }
   };
 
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value); // Update the search term
+  };
+
   return (
-    <Table
-      loading={isFetching} 
-      columns={columns} 
-      dataSource={tableData}
-      pagination={{
-        current: pagination.current,
-        pageSize: pagination.pageSize,
-        total: semesterData?.meta?.total,
-        showSizeChanger: true,
-        pageSizeOptions: ['2', '4', '6', '8', '10'],
-      }}
-      onChange={onChange}
-    />
+    <>
+      {/* Add search input */}
+      <Input
+        placeholder="Search by name"
+        value={searchTerm}
+        onChange={handleSearch}
+        style={{ marginBottom: 16, width: 300 }}
+      />
+      
+      <Table
+        loading={isFetching}
+        columns={columns}
+        dataSource={tableData}
+        pagination={{
+          current: pagination.current,
+          pageSize: pagination.pageSize,
+          total: semesterData?.meta?.total,
+          showSizeChanger: true,
+          pageSizeOptions: ['2', '4', '6', '8', '10'],
+        }}
+        onChange={onChange}
+      />
+    </>
   );
 };
 
